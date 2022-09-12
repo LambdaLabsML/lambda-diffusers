@@ -1,0 +1,7 @@
+torch
+torchvision
+transformers
+ftfy
+Pillow
+diffusers
+-e .
