@@ -6,7 +6,7 @@ setup(
     description='Lambda Labs additions to Diffusers',
     author='Justin Pinkney',
     author_email='justin@lambdal.com',
-    url='https://lambdalabs.com/',
+    url='https://github.com/LambdaLabsML/lambda-diffusers',
     packages=find_packages(),
     install_requires=[
         'torch',
