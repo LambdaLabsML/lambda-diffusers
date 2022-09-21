@@ -52,6 +52,9 @@ for idx, im in enumerate(image):
 
 __Stable Diffusion fine tuned on Pokémon by [Lambda Labs](https://lambdalabs.com/).__
 
+[![Open in Replicate](https://img.shields.io/badge/%F0%9F%9A%80-Open%20in%20Replicate-%23fff891)](https://replicate.com/lambdal/text-to-pokemon)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/LambdaLabsML/lambda-diffusers/blob/main/notebooks/pokemon_demo.ipynb)
+
 Put in a text prompt and generate your own Pokémon character, no "prompt engineering" required!
 
 If you want to find out how to train your own Stable Diffusion variants, see this [example](https://github.com/LambdaLabsML/examples/tree/main/stable-diffusion-finetuning) from Lambda Labs.
