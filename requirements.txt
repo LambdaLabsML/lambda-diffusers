@@ -1,7 +1,9 @@
-torch
-torchvision
-transformers
-ftfy
-Pillow
-diffusers
+--find-links https://download.pytorch.org/whl/torch_stable.html
+
+torch==1.10.1+cu113
+torchvision==0.11.2+cu113
+transformers==4.22.1
+ftfy==6.1.1
+Pillow==9.2.0
+diffusers==0.3.0
 -e .
