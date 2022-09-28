@@ -1,67 +1,121 @@
+import csv
 import torch
 from diffusers import StableDiffusionPipeline
 
-def get_inference_pipeline(dtype=torch.float16):
-    '''
+
+def get_inference_pipeline(precision):
+    """
     returns HuggingFace diffuser pipeline
     cf https://github.com/huggingface/diffusers#text-to-image-generation-with-stable-diffusion
     note: could not download from CompVis/stable-diffusion-v1-4 (access restricted)
-    '''
+    """
+
+    assert precision in ("half", "single"), "precision in ['half', 'single']"
+
     pipe = StableDiffusionPipeline.from_pretrained(
-        "lambdalabs/sd-pokemon-diffusers",
-        # TODO: get vanilla stable diffusion pretrained model (?)
-        #"CompVis/stable-diffusion-v1-4",
-        torch_dtype=dtype
+        # prereq: dl model weights
+        # cf https://github.com/huggingface/diffusers/blob/main/README.md
+        "/home/eole/Workspaces/stable-diffusion-v1-4",
+        torch_dtype=torch.float32 if precision == "single" else torch.float16,
     )
     pipe = pipe.to("cuda")
     # Disable safety
     disable_safety = True
     if disable_safety:
+
         def null_safety(images, **kwargs):
             return images, False
+
         pipe.safety_checker = null_safety
     return pipe
 
-def do_inference(pipe):
+
+def do_inference(pipe, n_samples):
     prompt = "a photo of an astronaut riding a horse on mars"
     with torch.autocast("cuda"):
-        image = pipe(prompt).images[0]
+        images = pipe(prompt=[prompt] * n_samples).images
+    return images
 
-        # TODO: check if batch size can be implemented in benchmark
-        # n_samples=1, guidance_scale=3.0
-        # images = pipe(n_samples*[prompt], guidance_scale=guidance_scale).images # -> batches ?
-        # image.save("astronaut_rides_horse.png")
-    return image
 
-def get_inference_time(pipe=get_inference_pipeline(), n_repeats=2):
+def get_inference_time(pipe, n_samples, n_repeats):
     from torch.utils.benchmark import Timer
+
     timer = Timer(
-        stmt="do_inference(pipe)",
+        stmt="do_inference(pipe, n_samples)",
         setup="from __main__ import do_inference",
-        globals={"pipe": pipe},
+        globals={"pipe": pipe, "n_samples": n_samples},
     )
-    profile_result = timer.timeit(n_repeats) # benchmark.Timer seems to performs 2 iterations for warmup
+    profile_result = timer.timeit(
+        n_repeats
+    )  # benchmark.Timer seems to performs 2 iterations for warmup
     return f"{profile_result.mean * 1000:.5f} ms"
 
-def get_inference_memory(pipe=get_inference_pipeline()):
+
+def get_inference_memory(pipe, n_samples):
     if not torch.cuda.is_available():
         return 0
     prompt = "a photo of an astronaut riding a horse on mars"
     torch.cuda.empty_cache()
     with torch.autocast("cuda"):
-        _ = pipe(prompt).images[0]
+        with torch.autocast("cuda"):
+            images = pipe(prompt=[prompt] * n_samples).images
         mem = torch.cuda.memory_reserved()
-    return '%.3gG' % (mem / 1E9)  # (GB)
+    return "%.3gG" % (mem / 1e9)  # (GB)
 
-def run_benchmark(pipe=get_inference_pipeline(), n_repeats=3):
+
+def run_benchmark(n_repeats, n_samples, precision):
+    """
+    * n_repeats: nb datapoints for inference latency benchmark
+    * n_samples: number of samples to generate (~ batch size)
+    * precision: 'half' or 'single' (use fp16 or fp32 tensors)
+
+    returns:
+    dict like {'memory usage': '17.7G', 'latency': '8671.23817 ms'}
+    """
+
+    pipe = get_inference_pipeline(precision)
+
     logs = {
-        'memory usage' : get_inference_memory(pipe), # reserved memory is constant, no need for n_repeats
-        'latency' : get_inference_time(pipe, n_repeats) 
+        "memory": get_inference_memory(pipe, n_samples),
+        "latency": get_inference_time(pipe, n_samples, n_repeats),
     }
     print(logs)
     return logs
 
 
+def run_benchmark_grid(grid, n_repeats, csv_fpath):
+    """
+    * grid : dict like
+        {
+            "n_samples": (1, 2),
+            "precision": ("single", "half"),
+        }
+    * n_repeats: nb datapoints for inference latency benchmark
+    * csv_path : location of benchmark output csv file
+    """
+
+    header = ["precision", "n_samples", "latency", "memory"]
+    with open(csv_fpath, "w") as f:
+        writer = csv.writer(f)
+        writer.writerow(header)
+
+        for n_samples in grid["n_samples"]:
+            for precision in grid["precision"]:
+                new_log = run_benchmark(
+                    n_repeats=n_repeats, n_samples=n_samples, precision=precision
+                )
+                latency = new_log["latency"]
+                memory = new_log["memory"]
+                new_row = [precision, n_samples, latency, memory]
+                writer.writerow(new_row)
+
+
 if __name__ == "__main__":
 
-    run_benchmark()
+    grid = {"n_samples": (1, 2), "precision": ("single", "half")}
+
+    run_benchmark_grid(
+        grid,
+        n_repeats=3,
+        csv_fpath="/home/eole/Workspaces/lambda-diffusers/benchmark.csv",
+    )
