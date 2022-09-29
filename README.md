@@ -98,29 +98,34 @@ for idx, im in enumerate(images):
   im.save(f"{idx:06}.png")
 ```
 
-## Benchmarking diffuser inference
+## Benchmarking inference
 
 ### Setup
 
-Before running the benchmark, make sure you have completed the repository steps listed above.
+Before running the benchmark, make sure you have completed the repository [installation steps](#installation).
 
-Create a user account on HuggingFace and generate an access token.
-
-Open a terminal and add the access token to your environment variable:
+You will then need to set the huggingface access token:
+1. Create a user account on HuggingFace and generate an access token.
+2. Set your huggingface access token as the `ACCESS_TOKEN` environment variable:
 ```
-ACCESS_TOKEN=your_token_here
+export ACCESS_TOKEN=<hf_...>
 ```
-
 
 ### Usage
 
-Launch the benchmark script using the CLI:
+Launch the benchmark script to append benchmark results to the existing [benchmark.csv](./benchmark.csv) results file:
 ```
 python ./scripts/benchmark.py
 ```
 
 ### Results
 
+|device          |precision|n_samples|latency      |memory|
+|----------------|---------|---------|-------------|------|
+|NVIDIA RTX A6000|single   |1        |4671.51285 ms|8.94G |
+|NVIDIA RTX A6000|half     |1        |4743.24729 ms|4.52G |
+|NVIDIA RTX A6000|single   |2        |8755.72952 ms|11.2G |
+|NVIDIA RTX A6000|half     |2        |8799.80101 ms|6.79G |
 
 
 ## Links
