@@ -48,7 +48,7 @@ def get_inference_time(pipe, n_samples, n_repeats):
     )
     profile_result = timer.timeit(
         n_repeats
-    )  # benchmark.Timer seems to performs 2 iterations for warmup
+    )  # benchmark.Timer performs 2 iterations for warmup
     return f"{profile_result.mean * 1000:.5f} ms"
 
 
@@ -80,8 +80,22 @@ def run_benchmark(n_repeats, n_samples, precision):
         "memory": get_inference_memory(pipe, n_samples),
         "latency": get_inference_time(pipe, n_samples, n_repeats),
     }
-    print(logs)
+    print(f'n_samples: {n_samples}\tprecision: {precision}')
+    print(logs,'\n')
     return logs
+
+
+def get_device_description():
+    """
+    returns descriptor of cuda device such as
+    'NVIDIA RTX A6000'
+    """
+
+    n_devices = torch.cuda.device_count()
+    if n_devices < 1:
+        return "CPU"
+    else:
+        return torch.cuda.get_device_name()
 
 
 def run_benchmark_grid(grid, n_repeats, csv_fpath):
@@ -95,8 +109,10 @@ def run_benchmark_grid(grid, n_repeats, csv_fpath):
     * csv_path : location of benchmark output csv file
     """
 
-    header = ["precision", "n_samples", "latency", "memory"]
-    with open(csv_fpath, "w") as f:
+    device = get_device_description()
+    header = ["device", "precision", "n_samples", "latency", "memory"]
+
+    with open(csv_fpath, "a") as f:
         writer = csv.writer(f)
         writer.writerow(header)
 
@@ -107,7 +123,7 @@ def run_benchmark_grid(grid, n_repeats, csv_fpath):
                 )
                 latency = new_log["latency"]
                 memory = new_log["memory"]
-                new_row = [precision, n_samples, latency, memory]
+                new_row = [device, precision, n_samples, latency, memory]
                 writer.writerow(new_row)
 
 
