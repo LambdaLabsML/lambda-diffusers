@@ -1,4 +1,5 @@
 import os
+import pathlib
 import csv
 from click import command
 import torch
@@ -16,7 +17,7 @@ def get_inference_pipeline(precision):
 
     pipe = StableDiffusionPipeline.from_pretrained(
         "CompVis/stable-diffusion-v1-4",
-        use_auth_token=os.environ['ACCESS_TOKEN'],
+        use_auth_token=os.environ["ACCESS_TOKEN"],
         torch_dtype=torch.float32 if precision == "single" else torch.float16,
     )
     pipe = pipe.to("cuda")
@@ -80,8 +81,8 @@ def run_benchmark(n_repeats, n_samples, precision):
         "memory": get_inference_memory(pipe, n_samples),
         "latency": get_inference_time(pipe, n_samples, n_repeats),
     }
-    print(f'n_samples: {n_samples}\tprecision: {precision}')
-    print(logs,'\n')
+    print(f"n_samples: {n_samples}\tprecision: {precision}")
+    print(logs, "\n")
     return logs
 
 
@@ -98,7 +99,7 @@ def get_device_description():
         return torch.cuda.get_device_name()
 
 
-def run_benchmark_grid(grid, n_repeats, csv_fpath):
+def run_benchmark_grid(grid, n_repeats):
     """
     * grid : dict like
         {
@@ -106,16 +107,20 @@ def run_benchmark_grid(grid, n_repeats, csv_fpath):
             "precision": ("single", "half"),
         }
     * n_repeats: nb datapoints for inference latency benchmark
-    * csv_path : location of benchmark output csv file
     """
 
-    device = get_device_description()
-    header = ["device", "precision", "n_samples", "latency", "memory"]
+    csv_fpath = pathlib.Path(__file__).parent.parent / "benchmark.csv"
+    # create benchmark.csv if not exists
+    if not os.path.isfile(csv_fpath):
+        header = ["device", "precision", "n_samples", "latency", "memory"]
+        with open(csv_fpath, "w") as f:
+            writer = csv.writer(f)
+            writer.writerow(header)
 
+    # append new benchmark results to it if benchmark.csv already exists
     with open(csv_fpath, "a") as f:
         writer = csv.writer(f)
-        writer.writerow(header)
-
+        device = get_device_description()
         for n_samples in grid["n_samples"]:
             for precision in grid["precision"]:
                 new_log = run_benchmark(
@@ -130,9 +135,4 @@ def run_benchmark_grid(grid, n_repeats, csv_fpath):
 if __name__ == "__main__":
 
     grid = {"n_samples": (1, 2), "precision": ("single", "half")}
-
-    run_benchmark_grid(
-        grid,
-        n_repeats=3,
-        csv_fpath="/home/eole/Workspaces/lambda-diffusers/benchmark.csv",
-    )
+    run_benchmark_grid(grid, n_repeats=3)
