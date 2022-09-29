@@ -1,4 +1,6 @@
+import os
 import csv
+from click import command
 import torch
 from diffusers import StableDiffusionPipeline
 
@@ -13,9 +15,8 @@ def get_inference_pipeline(precision):
     assert precision in ("half", "single"), "precision in ['half', 'single']"
 
     pipe = StableDiffusionPipeline.from_pretrained(
-        # prereq: dl model weights
-        # cf https://github.com/huggingface/diffusers/blob/main/README.md
-        "/home/eole/Workspaces/stable-diffusion-v1-4",
+        "CompVis/stable-diffusion-v1-4",
+        use_auth_token=os.environ['ACCESS_TOKEN'],
         torch_dtype=torch.float32 if precision == "single" else torch.float16,
     )
     pipe = pipe.to("cuda")
