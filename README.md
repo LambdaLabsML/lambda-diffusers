@@ -98,6 +98,31 @@ for idx, im in enumerate(images):
   im.save(f"{idx:06}.png")
 ```
 
+## Benchmarking diffuser inference
+
+### Setup
+
+Before running the benchmark, make sure you have completed the repository steps listed above.
+
+Create a user account on HuggingFace and generate an access token.
+
+Open a terminal and add the access token to your environment variable:
+```
+ACCESS_TOKEN=your_token_here
+```
+
+
+### Usage
+
+Launch the benchmark script using the CLI:
+```
+python ./scripts/benchmark.py
+```
+
+### Results
+
+
+
 ## Links
 
 - [Captioned Pokémon dataset](https://huggingface.co/datasets/lambdalabs/pokemon-blip-captions)
