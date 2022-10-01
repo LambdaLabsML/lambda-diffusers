@@ -8,7 +8,21 @@ Quadro RTX 8000,half,pytorch,2,12.61 s,8.8G
 Quadro RTX 8000,half,onnx,2,25.83 s,0.0G
 Intel(R) Core(TM) i7-6850K CPU @ 3.60GHz,single,pytorch,1,458.97 s,0.0G
 Intel(R) Core(TM) i7-6850K CPU @ 3.60GHz,single,onnx,1,286.13 s,0.0G
-Quadro RTX 8000,single,pytorch,1,12.03 s,7.74G
-Quadro RTX 8000,single,onnx,1,16.40 s,0.0G
-Quadro RTX 8000,half,pytorch,1,6.42 s,4.51G
-Quadro RTX 8000,half,onnx,1,16.79 s,0.0G
+NVIDIA GeForce RTX 3090,single,pytorch,1,7.96 s,7.72G
+NVIDIA GeForce RTX 3090,single,onnx,1,7.93 s,0.0G
+NVIDIA GeForce RTX 3090,half,pytorch,1,4.83 s,5.47G
+NVIDIA GeForce RTX 3090,half,onnx,1,7.96 s,0.0G
+NVIDIA GeForce RTX 3090,single,pytorch,2,14.49 s,11G
+NVIDIA GeForce RTX 3090,single,onnx,2,14.85 s,0.0G
+NVIDIA GeForce RTX 3090,half,pytorch,2,8.42 s,8.75G
+NVIDIA GeForce RTX 3090,half,onnx,2,14.84 s,0.0G
+NVIDIA RTX A5500,single,pytorch,1,8.55 s,7.69G
+NVIDIA RTX A5500,single,onnx,1,8.75 s,0.0G
+NVIDIA RTX A5500,half,pytorch,1,5.05 s,5.51G
+NVIDIA RTX A5500,half,onnx,1,8.83 s,0.0G
+NVIDIA RTX A5500,single,pytorch,2,15.71 s,11G
+NVIDIA RTX A5500,single,onnx,2,16.83 s,0.0G
+NVIDIA RTX A5500,half,pytorch,2,9.37 s,8.8G
+NVIDIA RTX A5500,half,onnx,2,16.82 s,0.0G
+AMD EPYC 7352 24-Core Processor,single,pytorch,1,529.93 s,0.0G
+AMD EPYC 7352 24-Core Processor,single,onnx,1,223.19 s,0.0G

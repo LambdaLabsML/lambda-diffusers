@@ -49,6 +49,7 @@ def get_inference_pipeline(precision, backend):
 
 
 def do_inference(pipe, n_samples, precision, num_inference_steps):
+    torch.cuda.empty_cache()
     
     if precision == "half":
         with torch.autocast(device.type):
@@ -148,13 +149,22 @@ def run_benchmark_grid(grid, n_repeats, num_inference_steps):
         for n_samples in grid["n_samples"]:
             for precision in grid["precision"]:
                 for backend in grid["backend"]:
-                    new_log = run_benchmark(
-                        n_repeats=n_repeats, 
-                        n_samples=n_samples, 
-                        precision=precision,
-                        backend=backend,
-                        num_inference_steps=num_inference_steps
-                    )
+                    try:
+                        new_log = run_benchmark(
+                            n_repeats=n_repeats, 
+                            n_samples=n_samples, 
+                            precision=precision,
+                            backend=backend,
+                            num_inference_steps=num_inference_steps
+                        )
+                    except RuntimeError as e:
+                        if "CUDA out of memory" in str(e):
+                            torch.cuda.empty_cache()
+                            new_log = {
+                                    "latency": "-1.00 s",
+                                    "memory": "-1.0G"
+                            }
+
                     latency = new_log["latency"]
                     memory = new_log["memory"]
                     new_row = [device_desc, precision, backend, n_samples, latency, memory]
@@ -164,6 +174,13 @@ def run_benchmark_grid(grid, n_repeats, num_inference_steps):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--samples", 
+        default="1",
+        type=str, 
+        help="Comma sepearated list of batch sizes (number of samples)"
+    )
 
     parser.add_argument(
         "--steps", 
@@ -181,9 +198,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-
     grid = {
-        "n_samples": (1, 2), 
+        "n_samples": tuple(map(int, args.samples.split(","))), 
         # Only use single precision for cpu because "LayerNormKernelImpl" not implemented for 'Half' on cpu, 
         # Remove autocast won't help. Ref:
         # https://github.com/CompVis/stable-diffusion/issues/307
