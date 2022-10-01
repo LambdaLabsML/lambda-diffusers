@@ -1,16 +1,17 @@
 import os
 import subprocess
 import multiprocessing
+import argparse
 import pathlib
 import csv
 import torch
-from diffusers import StableDiffusionPipeline
+from diffusers import StableDiffusionPipeline, StableDiffusionOnnxPipeline
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-num_inference_steps = 50
-n_repeats = 3
 
-def get_inference_pipeline(precision):
+prompt = "a photo of an astronaut riding a horse on mars"
+
+def get_inference_pipeline(precision, backend):
     """
     returns HuggingFace diffuser pipeline
     cf https://github.com/huggingface/diffusers#text-to-image-generation-with-stable-diffusion
@@ -18,14 +19,24 @@ def get_inference_pipeline(precision):
     """
 
     assert precision in ("half", "single"), "precision in ['half', 'single']"
+    assert backend in ("pytorch", "onnx"), "backend in ['pytorch', 'onnx']"
 
-    pipe = StableDiffusionPipeline.from_pretrained(
-        "CompVis/stable-diffusion-v1-4",
-        use_auth_token=os.environ["ACCESS_TOKEN"],
-        torch_dtype=torch.float32 if precision == "single" else torch.float16,
-    )
+    if backend == "pytorch":
+        pipe = StableDiffusionPipeline.from_pretrained(
+            "CompVis/stable-diffusion-v1-4",
+            use_auth_token=os.environ["ACCESS_TOKEN"],
+            torch_dtype=torch.float32 if precision == "single" else torch.float16,
+        )
+        pipe = pipe.to(device)
+    else:   
+        pipe = StableDiffusionOnnxPipeline.from_pretrained(
+            "CompVis/stable-diffusion-v1-4",
+            use_auth_token=os.environ["ACCESS_TOKEN"],
+            revision="onnx",
+            provider="CPUExecutionProvider" if device.type=="cpu" else "CUDAExecutionProvider",
+            torch_dtype=torch.float32 if precision == "single" else torch.float16,
+        )
 
-    pipe = pipe.to(device)
     # Disable safety
     disable_safety = True
     if disable_safety:
@@ -37,8 +48,8 @@ def get_inference_pipeline(precision):
     return pipe
 
 
-def do_inference(pipe, n_samples, precision):
-    prompt = "a photo of an astronaut riding a horse on mars"
+def do_inference(pipe, n_samples, precision, num_inference_steps):
+    
     if precision == "half":
         with torch.autocast(device.type):
             images = pipe(prompt=[prompt] * n_samples, num_inference_steps=num_inference_steps).images
@@ -47,24 +58,23 @@ def do_inference(pipe, n_samples, precision):
     return images
 
 
-def get_inference_time(pipe, n_samples, n_repeats, precision):
+def get_inference_time(pipe, n_samples, n_repeats, precision, num_inference_steps):
     from torch.utils.benchmark import Timer
     timer = Timer(
-        stmt="do_inference(pipe, n_samples, precision)",
+        stmt="do_inference(pipe, n_samples, precision, num_inference_steps)",
         setup="from __main__ import do_inference",
-        globals={"pipe": pipe, "n_samples": n_samples, "precision": precision},
+        globals={"pipe": pipe, "n_samples": n_samples, "precision": precision, "num_inference_steps": num_inference_steps},
         num_threads=multiprocessing.cpu_count()
     )
     profile_result = timer.timeit(
         n_repeats
     )  # benchmark.Timer performs 2 iterations for warmup
-    return f"{profile_result.mean * 1000:.5f} ms"
+    return f"{profile_result.mean:.2f} s"
 
 
-def get_inference_memory(pipe, n_samples, precision):
+def get_inference_memory(pipe, n_samples, precision, num_inference_steps):
     if not torch.cuda.is_available():
         return 0
-    prompt = "a photo of an astronaut riding a horse on mars"
     
     torch.cuda.empty_cache()
     if precision == "half":
@@ -76,7 +86,7 @@ def get_inference_memory(pipe, n_samples, precision):
     return "%.3gG" % (mem / 1e9)  # (GB)
 
 
-def run_benchmark(n_repeats, n_samples, precision):
+def run_benchmark(n_repeats, n_samples, precision, backend, num_inference_steps):
     """
     * n_repeats: nb datapoints for inference latency benchmark
     * n_samples: number of samples to generate (~ batch size)
@@ -86,13 +96,13 @@ def run_benchmark(n_repeats, n_samples, precision):
     dict like {'memory usage': '17.7G', 'latency': '8671.23817 ms'}
     """
 
-    pipe = get_inference_pipeline(precision)
+    pipe = get_inference_pipeline(precision, backend)
 
     logs = {
-        "memory": "0.0G" if device.type=="cpu" else get_inference_memory(pipe, n_samples, precision),
-        "latency": get_inference_time(pipe, n_samples, n_repeats, precision),
+        "memory": "0.0G" if device.type=="cpu" or backend=="onnx" else get_inference_memory(pipe, n_samples, precision, num_inference_steps),
+        "latency": get_inference_time(pipe, n_samples, n_repeats, precision, num_inference_steps),
     }
-    print(f"n_samples: {n_samples}\tprecision: {precision}")
+    print(f"n_samples: {n_samples}\tprecision: {precision}\tbackend: {backend}")
     print(logs, "\n")
     return logs
 
@@ -113,7 +123,7 @@ def get_device_description():
         return torch.cuda.get_device_name()
 
 
-def run_benchmark_grid(grid, n_repeats):
+def run_benchmark_grid(grid, n_repeats, num_inference_steps):
     """
     * grid : dict like
         {
@@ -137,19 +147,48 @@ def run_benchmark_grid(grid, n_repeats):
         device_desc = get_device_description()
         for n_samples in grid["n_samples"]:
             for precision in grid["precision"]:
-                new_log = run_benchmark(
-                    n_repeats=n_repeats, n_samples=n_samples, precision=precision
-                )
-                latency = new_log["latency"]
-                memory = new_log["memory"]
-                new_row = [device_desc, precision, n_samples, latency, memory]
-                writer.writerow(new_row)
+                for backend in grid["backend"]:
+                    new_log = run_benchmark(
+                        n_repeats=n_repeats, 
+                        n_samples=n_samples, 
+                        precision=precision,
+                        backend=backend,
+                        num_inference_steps=num_inference_steps
+                    )
+                    latency = new_log["latency"]
+                    memory = new_log["memory"]
+                    new_row = [device_desc, precision, backend, n_samples, latency, memory]
+                    writer.writerow(new_row)
 
 
 if __name__ == "__main__":
-    # Only use single precision for cpu because "LayerNormKernelImpl" not implemented for 'Half' on cpu, 
-    # Remove autocast won't help. Ref:
-    # https://github.com/CompVis/stable-diffusion/issues/307
-    # https://github.com/CompVis/stable-diffusion/issues/307
-    grid = {"n_samples": (1, 2), "precision": ("single", "half") if device.type != "cpu" else ("single",)}
-    run_benchmark_grid(grid, n_repeats=n_repeats)
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--steps", 
+        default=50, 
+        type=int, 
+        help="Number of diffusion steps."
+    )
+
+    parser.add_argument(
+        "--repeats",
+        default=3,
+        type=int,
+        help="Number of repeats.",
+    )
+
+    args = parser.parse_args()
+
+
+    grid = {
+        "n_samples": (1, 2), 
+        # Only use single precision for cpu because "LayerNormKernelImpl" not implemented for 'Half' on cpu, 
+        # Remove autocast won't help. Ref:
+        # https://github.com/CompVis/stable-diffusion/issues/307
+        # https://github.com/CompVis/stable-diffusion/issues/307
+        "precision": ("single", "half") if device.type != "cpu" else ("single",),
+        "backend": ("pytorch", "onnx")
+    }
+    run_benchmark_grid(grid, n_repeats=args.repeats, num_inference_steps=args.steps)

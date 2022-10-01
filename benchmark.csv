@@ -1,6 +1,14 @@
-Intel(R) Core(TM) i7-6850K CPU @ 3.60GHz,single,1,447150.43733 ms,0.0G
-Intel(R) Core(TM) i7-6850K CPU @ 3.60GHz,single,2,786710.01599 ms,0.0G
-Quadro RTX 8000,single,1,12155.51114 ms,7.67G
-Quadro RTX 8000,half,1,6493.54367 ms,4.5G
-Quadro RTX 8000,single,2,23715.58665 ms,8.93G
-Quadro RTX 8000,half,2,12621.93338 ms,6.77G
+Quadro RTX 8000,single,pytorch,1,12.50 s,7.69G
+Quadro RTX 8000,single,onnx,1,13.54 s,0.0G
+Quadro RTX 8000,half,pytorch,1,6.52 s,4.5G
+Quadro RTX 8000,half,onnx,1,13.59 s,0.0G
+Quadro RTX 8000,single,pytorch,2,23.92 s,10.9G
+Quadro RTX 8000,single,onnx,2,25.56 s,0.0G
+Quadro RTX 8000,half,pytorch,2,12.61 s,8.8G
+Quadro RTX 8000,half,onnx,2,25.83 s,0.0G
+Intel(R) Core(TM) i7-6850K CPU @ 3.60GHz,single,pytorch,1,458.97 s,0.0G
+Intel(R) Core(TM) i7-6850K CPU @ 3.60GHz,single,onnx,1,286.13 s,0.0G
+Quadro RTX 8000,single,pytorch,1,12.03 s,7.74G
+Quadro RTX 8000,single,onnx,1,16.40 s,0.0G
+Quadro RTX 8000,half,pytorch,1,6.42 s,4.51G
+Quadro RTX 8000,half,onnx,1,16.79 s,0.0G
