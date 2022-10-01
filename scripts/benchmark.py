@@ -70,7 +70,7 @@ def get_inference_time(pipe, n_samples, n_repeats, precision, num_inference_step
     profile_result = timer.timeit(
         n_repeats
     )  # benchmark.Timer performs 2 iterations for warmup
-    return f"{profile_result.mean:.2f} s"
+    return round(profile_result.mean, 2)
 
 
 def get_inference_memory(pipe, n_samples, precision, num_inference_steps):
@@ -84,7 +84,7 @@ def get_inference_memory(pipe, n_samples, precision, num_inference_steps):
     else:
         images = pipe(prompt=[prompt] * n_samples, num_inference_steps=num_inference_steps).images
     mem = torch.cuda.memory_reserved()
-    return "%.3gG" % (mem / 1e9)  # (GB)
+    return round(mem / 1e9, 2)
 
 
 def run_benchmark(n_repeats, n_samples, precision, backend, num_inference_steps):
@@ -94,13 +94,13 @@ def run_benchmark(n_repeats, n_samples, precision, backend, num_inference_steps)
     * precision: 'half' or 'single' (use fp16 or fp32 tensors)
 
     returns:
-    dict like {'memory usage': '17.7G', 'latency': '8671.23817 ms'}
+    dict like {'memory usage': 17.70, 'latency': 86.71'}
     """
 
     pipe = get_inference_pipeline(precision, backend)
 
     logs = {
-        "memory": "0.0G" if device.type=="cpu" or backend=="onnx" else get_inference_memory(pipe, n_samples, precision, num_inference_steps),
+        "memory": 0.00 if device.type=="cpu" or backend=="onnx" else get_inference_memory(pipe, n_samples, precision, num_inference_steps),
         "latency": get_inference_time(pipe, n_samples, n_repeats, precision, num_inference_steps),
     }
     print(f"n_samples: {n_samples}\tprecision: {precision}\tbackend: {backend}")
@@ -161,8 +161,8 @@ def run_benchmark_grid(grid, n_repeats, num_inference_steps):
                         if "CUDA out of memory" in str(e):
                             torch.cuda.empty_cache()
                             new_log = {
-                                    "latency": "-1.00 s",
-                                    "memory": "-1.0G"
+                                    "latency": -1.00,
+                                    "memory": -1.00
                             }
 
                     latency = new_log["latency"]

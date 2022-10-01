@@ -1,28 +1,28 @@
-Quadro RTX 8000,single,pytorch,1,12.50 s,7.69G
-Quadro RTX 8000,single,onnx,1,13.54 s,0.0G
-Quadro RTX 8000,half,pytorch,1,6.52 s,4.5G
-Quadro RTX 8000,half,onnx,1,13.59 s,0.0G
-Quadro RTX 8000,single,pytorch,2,23.92 s,10.9G
-Quadro RTX 8000,single,onnx,2,25.56 s,0.0G
-Quadro RTX 8000,half,pytorch,2,12.61 s,8.8G
-Quadro RTX 8000,half,onnx,2,25.83 s,0.0G
-Intel(R) Core(TM) i7-6850K CPU @ 3.60GHz,single,pytorch,1,458.97 s,0.0G
-Intel(R) Core(TM) i7-6850K CPU @ 3.60GHz,single,onnx,1,286.13 s,0.0G
-NVIDIA GeForce RTX 3090,single,pytorch,1,7.96 s,7.72G
-NVIDIA GeForce RTX 3090,single,onnx,1,7.93 s,0.0G
-NVIDIA GeForce RTX 3090,half,pytorch,1,4.83 s,5.47G
-NVIDIA GeForce RTX 3090,half,onnx,1,7.96 s,0.0G
-NVIDIA GeForce RTX 3090,single,pytorch,2,14.49 s,11G
-NVIDIA GeForce RTX 3090,single,onnx,2,14.85 s,0.0G
-NVIDIA GeForce RTX 3090,half,pytorch,2,8.42 s,8.75G
-NVIDIA GeForce RTX 3090,half,onnx,2,14.84 s,0.0G
-NVIDIA RTX A5500,single,pytorch,1,8.55 s,7.69G
-NVIDIA RTX A5500,single,onnx,1,8.75 s,0.0G
-NVIDIA RTX A5500,half,pytorch,1,5.05 s,5.51G
-NVIDIA RTX A5500,half,onnx,1,8.83 s,0.0G
-NVIDIA RTX A5500,single,pytorch,2,15.71 s,11G
-NVIDIA RTX A5500,single,onnx,2,16.83 s,0.0G
-NVIDIA RTX A5500,half,pytorch,2,9.37 s,8.8G
-NVIDIA RTX A5500,half,onnx,2,16.82 s,0.0G
-AMD EPYC 7352 24-Core Processor,single,pytorch,1,529.93 s,0.0G
-AMD EPYC 7352 24-Core Processor,single,onnx,1,223.19 s,0.0G
+Quadro RTX 8000,single,pytorch,1,12.50,7.69
+Quadro RTX 8000,single,onnx,1,13.54,0.0
+Quadro RTX 8000,half,pytorch,1,6.52,4.5
+Quadro RTX 8000,half,onnx,1,13.59,0.0
+Quadro RTX 8000,single,pytorch,2,23.92,10.9
+Quadro RTX 8000,single,onnx,2,25.56,0.0
+Quadro RTX 8000,half,pytorch,2,12.61,8.8
+Quadro RTX 8000,half,onnx,2,25.83,0.0
+Intel(R) Core(TM) i7-6850K CPU @ 3.60GHz,single,pytorch,1,458.97,0.0
+Intel(R) Core(TM) i7-6850K CPU @ 3.60GHz,single,onnx,1,286.13,0.0
+NVIDIA GeForce RTX 3090,single,pytorch,1,7.96,7.72
+NVIDIA GeForce RTX 3090,single,onnx,1,7.93,0.0
+NVIDIA GeForce RTX 3090,half,pytorch,1,4.83,5.47
+NVIDIA GeForce RTX 3090,half,onnx,1,7.96,0.0
+NVIDIA GeForce RTX 3090,single,pytorch,2,14.49,11
+NVIDIA GeForce RTX 3090,single,onnx,2,14.85,0.0
+NVIDIA GeForce RTX 3090,half,pytorch,2,8.42,8.75
+NVIDIA GeForce RTX 3090,half,onnx,2,14.84,0.0
+NVIDIA RTX A5500,single,pytorch,1,8.55,7.69
+NVIDIA RTX A5500,single,onnx,1,8.75,0.0
+NVIDIA RTX A5500,half,pytorch,1,5.05,5.51
+NVIDIA RTX A5500,half,onnx,1,8.83,0.0
+NVIDIA RTX A5500,single,pytorch,2,15.71,11
+NVIDIA RTX A5500,single,onnx,2,16.83,0.0
+NVIDIA RTX A5500,half,pytorch,2,9.37,8.8
+NVIDIA RTX A5500,half,onnx,2,16.82,0.0
+AMD EPYC 7352 24-Core Processor,single,pytorch,1,529.93,0.0
+AMD EPYC 7352 24-Core Processor,single,onnx,1,223.19,0.0
