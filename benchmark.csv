@@ -1,5 +1,6 @@
-device,precision,n_samples,latency,memory
-NVIDIA RTX A6000,single,1,4736.85498 ms,8.97G
-NVIDIA RTX A6000,half,1,4775.88759 ms,4.48G
-NVIDIA RTX A6000,single,2,8786.72098 ms,11.1G
-NVIDIA RTX A6000,half,2,8834.01660 ms,8.78G
+Intel(R) Core(TM) i7-6850K CPU @ 3.60GHz,single,1,447150.43733 ms,0.0G
+Intel(R) Core(TM) i7-6850K CPU @ 3.60GHz,single,2,786710.01599 ms,0.0G
+Quadro RTX 8000,single,1,12155.51114 ms,7.67G
+Quadro RTX 8000,half,1,6493.54367 ms,4.5G
+Quadro RTX 8000,single,2,23715.58665 ms,8.93G
+Quadro RTX 8000,half,2,12621.93338 ms,6.77G
