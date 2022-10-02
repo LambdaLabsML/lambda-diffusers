@@ -26,3 +26,15 @@ NVIDIA RTX A5500,half,pytorch,2,9.37,8.8
 NVIDIA RTX A5500,half,onnx,2,16.82,0.0
 AMD EPYC 7352 24-Core Processor,single,pytorch,1,529.93,0.0
 AMD EPYC 7352 24-Core Processor,single,onnx,1,223.19,0.0
+NVIDIA GeForce RTX 3080,single,pytorch,4,-1.0,-1.0
+NVIDIA GeForce RTX 3080,single,onnx,4,-1.0,-1.0
+NVIDIA GeForce RTX 3080,half,pytorch,4,-1.0,-1.0
+NVIDIA GeForce RTX 3080,half,onnx,4,-1.0,-1.0
+NVIDIA GeForce RTX 3080,single,pytorch,1,-1.0,-1.0
+NVIDIA GeForce RTX 3080,single,onnx,1,-1.0,-1.0
+NVIDIA GeForce RTX 3080,half,pytorch,1,5.59,4.52
+NVIDIA GeForce RTX 3080,half,onnx,1,5.59,4.52
+NVIDIA GeForce RTX 3080,single,pytorch,2,-1.0,-1.0
+NVIDIA GeForce RTX 3080,single,onnx,2,-1.0,-1.0
+NVIDIA GeForce RTX 3080,half,pytorch,2,-1.0,-1.0
+NVIDIA GeForce RTX 3080,half,onnx,2,-1.0,-1.0

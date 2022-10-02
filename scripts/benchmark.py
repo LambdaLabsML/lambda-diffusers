@@ -157,8 +157,8 @@ def run_benchmark_grid(grid, n_repeats, num_inference_steps):
                             backend=backend,
                             num_inference_steps=num_inference_steps
                         )
-                    except RuntimeError as e:
-                        if "CUDA out of memory" in str(e):
+                    except Exception as e:
+                        if "CUDA out of memory" in str(e) or "Failed to allocate memory" in str(e):
                             torch.cuda.empty_cache()
                             new_log = {
                                     "latency": -1.00,
