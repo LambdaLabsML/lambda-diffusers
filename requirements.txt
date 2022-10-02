@@ -4,5 +4,5 @@ transformers==4.22.1
 ftfy==6.1.1
 Pillow==9.2.0
 diffusers==0.3.0
-onnxruntime-gpu==1.12.1
+onnxruntime==1.12.1
 -e .

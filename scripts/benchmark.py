@@ -4,7 +4,9 @@ import multiprocessing
 import argparse
 import pathlib
 import csv
+from contextlib import nullcontext
 import torch
+from torch import autocast
 from diffusers import StableDiffusionPipeline, StableDiffusionOnnxPipeline
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -50,12 +52,10 @@ def get_inference_pipeline(precision, backend):
 
 def do_inference(pipe, n_samples, precision, num_inference_steps):
     torch.cuda.empty_cache()
-    
-    if precision == "half":
-        with torch.autocast(device.type):
-            images = pipe(prompt=[prompt] * n_samples, num_inference_steps=num_inference_steps).images
-    else:
+    context = autocast if (device.type == "cuda" and precision == 'half') else nullcontext
+    with context("cuda"):
         images = pipe(prompt=[prompt] * n_samples, num_inference_steps=num_inference_steps).images
+
     return images
 
 
@@ -78,11 +78,10 @@ def get_inference_memory(pipe, n_samples, precision, num_inference_steps):
         return 0
     
     torch.cuda.empty_cache()
-    if precision == "half":
-        with torch.autocast(device.type):
-            images = pipe(prompt=[prompt] * n_samples, num_inference_steps=num_inference_steps).images
-    else:
+    context = autocast if (device.type == "cuda" and precision == 'half') else nullcontext
+    with context("cuda"):
         images = pipe(prompt=[prompt] * n_samples, num_inference_steps=num_inference_steps).images
+
     mem = torch.cuda.memory_reserved()
     return round(mem / 1e9, 2)
 
@@ -100,7 +99,7 @@ def run_benchmark(n_repeats, n_samples, precision, backend, num_inference_steps)
     pipe = get_inference_pipeline(precision, backend)
 
     logs = {
-        "memory": 0.00 if device.type=="cpu" or backend=="onnx" else get_inference_memory(pipe, n_samples, precision, num_inference_steps),
+        "memory": 0.00 if device.type=="cpu" else get_inference_memory(pipe, n_samples, precision, num_inference_steps),
         "latency": get_inference_time(pipe, n_samples, n_repeats, precision, num_inference_steps),
     }
     print(f"n_samples: {n_samples}\tprecision: {precision}\tbackend: {backend}")
@@ -158,6 +157,7 @@ def run_benchmark_grid(grid, n_repeats, num_inference_steps):
                             num_inference_steps=num_inference_steps
                         )
                     except Exception as e:
+                        print(str(e))
                         if "CUDA out of memory" in str(e) or "Failed to allocate memory" in str(e):
                             torch.cuda.empty_cache()
                             new_log = {
@@ -203,8 +203,10 @@ if __name__ == "__main__":
         # Only use single precision for cpu because "LayerNormKernelImpl" not implemented for 'Half' on cpu, 
         # Remove autocast won't help. Ref:
         # https://github.com/CompVis/stable-diffusion/issues/307
-        # https://github.com/CompVis/stable-diffusion/issues/307
-        "precision": ("single", "half") if device.type != "cpu" else ("single",),
-        "backend": ("pytorch", "onnx")
+        "precision": ("single",) if device.type == "cpu" else ("single", "half"),
+        # Only use onnx for cpu, until issues are fixed by upstreams. Ref:
+        # https://github.com/huggingface/diffusers/issues/489#issuecomment-1261577250
+        # https://github.com/huggingface/diffusers/pull/440
+        "backend": ("pytorch", "onnx") if device.type == "cpu" else ("pytorch",)
     }
     run_benchmark_grid(grid, n_repeats=args.repeats, num_inference_steps=args.steps)
