@@ -201,7 +201,7 @@ if __name__ == "__main__":
 
     grid = {
         "n_samples": tuple(map(int, args.samples.split(","))), 
-        # Only use single precision for cpu because "LayerNormKernelImpl" not implemented for 'Half' on cpu, 
+        # Only use single-precision for cpu because "LayerNormKernelImpl" not implemented for 'Half' on cpu, 
         # Remove autocast won't help. Ref:
         # https://github.com/CompVis/stable-diffusion/issues/307
         "precision": ("single",) if device.type == "cpu" else ("single", "half"),

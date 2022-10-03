@@ -100,6 +100,8 @@ for idx, im in enumerate(images):
 
 ## Benchmarking inference
 
+Detailed benchmark documentation can be found [here](./docs/benchmark.md).
+
 ### Setup
 
 Before running the benchmark, make sure you have completed the repository [installation steps](#installation).
