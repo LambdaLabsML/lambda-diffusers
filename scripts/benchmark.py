@@ -26,6 +26,7 @@ def get_inference_pipeline(precision, backend):
     if backend == "pytorch":
         pipe = StableDiffusionPipeline.from_pretrained(
             "CompVis/stable-diffusion-v1-4",
+            revision="main" if precision == "single" else "fp16",
             use_auth_token=os.environ["ACCESS_TOKEN"],
             torch_dtype=torch.float32 if precision == "single" else torch.float16,
         )
