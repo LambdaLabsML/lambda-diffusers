@@ -23,7 +23,7 @@ We believe Ampere GPUs enjoy a relatively "smaller" speedup from half-precision 
 
 We run these same inference jobs CPU devices to put in perspective the inference speed performance observed on GPU.
 
-<img src="./pictures/pretty_benchmark_sd_txt2img_gpu_vs_cpu.png" alt="Stable Diffusion Text2Image Latency (seconds)" width="700"/>
+<img src="./pictures/pretty_benchmark_sd_txt2img_gpu_vs_cpu.png" alt="Stable Diffusion Text2Image GPU v CPU" width="700"/>
 
 
 We note that:
@@ -58,7 +58,7 @@ Our throughput benchmark pushes the batch size to the maximum for each GPU, and 
 
 We run a series of throughput experiment in pytorch with half-precision and using the maximum batch size that can be used for each GPU:
 
-<img src="./pictures/pretty_benchmark_sd_txt2img_throughput.png" alt="Stable Diffusion Text2Image Throughput (images/minute)]" width="390"/>
+<img src="./pictures/pretty_benchmark_sd_txt2img_throughput.png" alt="Stable Diffusion Text2Image Throughput (images/minute)" width="390"/>
 
 We note:
 * Once again, A100 80GB is the top performer and has the highest throughput.
@@ -67,20 +67,20 @@ We note:
 
 As a concrete example, the chart below shows how A100 80GB's throughput increases by `64%` when we changed the batch size from 1 to 28 (the largest without causing an out of memory error). It is also interesting to see that the increase is not linear and flattens out when batch size reaches a certain value, at which point the tensor cores on the GPU are saturated and any new data in the GPU memory will have to be queued up before getting their own computing resources. 
 
-<img src="./pictures/pretty_benchmark_sd_txt2img_batchsize_vs_throughput.png" alt="Stable Diffusion Text2Image Throughput (images/minute)" width="380"/>
+<img src="./pictures/pretty_benchmark_sd_txt2img_batchsize_vs_throughput.png" alt="Stable Diffusion Text2Image Batch size vs Throughput (images/minute)" width="380"/>
 
 
 ## Precision
 
 We are curious about whether half-precision introduces degradations to the quality of the output images. To test this out, we fixed the text prompt as well as the "latent" input vector and fed them to the single-precision model and the half-precision model. We ran the inference for 100 steps and saved both models' outputs at each step, as well as the difference map:
 
-![Stable Diffusion Text2Image Throughput (images/minute)](./pictures/benchmark_sd_precision_history.gif)
+![Evolution of precision v degradation across 100 steps](./pictures/benchmark_sd_precision_history.gif)
 
 Our observation is that there are indeed visible differences between the single-precision output and the half-precision output, especially in the early steps. The differences often decrease with the number of steps, but might not always vanish. 
 
 Interestingly, such a difference may not imply artifacts in half-precision's outputs. For example, in step 70, the picture below shows half-precision didn't produce the artifact in the single-precision output (an extra front leg):
 
-![Stable Diffusion Text2Image Throughput (images/minute)](./pictures/benchmark_sd_precision_step_70.png)
+![Precision v Degradation at step 70](./pictures/benchmark_sd_precision_step_70.png)
 
 ---
 

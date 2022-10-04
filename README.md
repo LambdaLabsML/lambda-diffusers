@@ -122,13 +122,7 @@ python ./scripts/benchmark.py
 
 ### Results
 
-|device          |precision|n_samples|latency      |memory|
-|----------------|---------|---------|-------------|------|
-|NVIDIA RTX A6000|single   |1        |4736.85498 ms|8.97G |
-|NVIDIA RTX A6000|half     |1        |4775.88759 ms|4.48G |
-|NVIDIA RTX A6000|single   |2        |8786.72098 ms|11.1G |
-|NVIDIA RTX A6000|half     |2        |8834.01660 ms|8.78G |
-
+<img src="./docs/pictures/pretty_benchmark_sd_txt2img_latency.png" alt="Stable Diffusion Text2Image Latency (seconds)" width="850"/>
 
 ## Links
 
