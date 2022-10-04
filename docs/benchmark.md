@@ -1,42 +1,64 @@
 # Benchmarking Diffuser Models
 
-We benchmark [Stable Diffusion](https://huggingface.co/CompVis/stable-diffusion) model inference using different GPUs and CPUs. When possible, we use half-precision and onnxruntime to speed up the inference. The input is a text prompt, and the output is an image of resolution `512x512`.
+We present a benchmark of [Stable Diffusion](https://huggingface.co/CompVis/stable-diffusion) model inference.  This text2image model uses a text prompt as input and outputs an image of resolution `512x512`.
 
-## Latency
+Our experiments analyze inference performance in terms of speed, memory consumption, throughput, and quality of the output images. We look at how different choices in hardware (GPU model, GPU vs CPU) and software (single vs half precision, pytorch vs onnxruntime) affect inference performance.
 
-The figure below shows the latency of running inference using a single text prompt "a photo of an astronaut riding a horse on mars". The key insights are:
+For reference, we will be providing benchmark results for following GPU devices: A100 80GB PCIe, RTX3090, RTXA5500, RTXA6000, RTX3080, RTX8000. Please refer to the [Reproduce](#Reproduce) section below for details on reproducing the benchmark experiments in your own environment.
+
+
+## Inference speed
+
+The figure below shows the latency of generating a single image using the text prompt: *"a photo of an astronaut riding a horse on mars"*.
+
+<img src="./pictures/pretty_benchmark_sd_txt2img_latency.png" alt="Stable Diffusion Text2Image Latency (seconds)" width="800"/>
+
+
+We find that:
 * The inference latencies range between `3.74` to `5.56` seconds across our tested Ampere GPUs, including the consumer 3080 card to the flagship A100 80GB card.
 * Half-precision reduces the latency by about `40%` for Ampere GPUs, and by `52%` for the previous generation `RTX8000` GPU. We believe Ampere GPUs enjoy a relatively "smaller" speedup from half-precision due to their use of `TF32`. For readers who are not familiar with `TF32`, it is a [`19-bit` format](https://blogs.nvidia.com/blog/2020/05/14/tensorfloat-32-precision-format/) that has been used as the default single-precision data type on Ampere GPUs for major deep learning frameworks such as PyTorch and TensorFlow. One can expect half-precision's speedup over `FP32` to be bigger since it is a true `32-bit` format.
 
-![Stable Diffusion Text2Image Latency (seconds)](./pictures/benchmark_sd_txt2img_latency.svg)
 
 
-Putting such performance in the context of the performance of running the same inference job on CPUs (the figure below), we notice that:
+
+We run these same inference jobs CPU devices to put in perspective the inference speed performance observed on GPU.
+
+<img src="./pictures/pretty_benchmark_sd_txt2img_gpu_vs_cpu.png" alt="Stable Diffusion Text2Image Latency (seconds)" width="700"/>
+
+
+We note that:
 * GPUs are significantly faster -- by one or two orders of magnitudes depending on the precisions. 
 * `onnxruntime` can reduce the latency for CPU by about `40%` to `50%`, depending on the type of CPUs.
 * ONNX currently does not have [stable support](https://github.com/huggingface/diffusers/issues/489) for Huggingface diffusers. We will investigate `onnxruntime-gpu` in future benchmarks.
 
-![GPU v.s. CPU](./pictures/benchmark_sd_txt2img_gpu_vs_cpu.svg)
+
 
 
 ## Memory
 
-We also measure the memory consumption of running stable diffusion inference, and here are the results:
-* It takes about `7.7 GB` GPU memory to run single-precision inference with batch size one. This is consistent across all tested GPUs.
-* It takes about `4.5 GB` GPU memory to run half-precision inference with batch size one. This is consistent across all tested GPUs.
+We also measure the memory consumption of running stable diffusion inference.
 
-![Stable Diffusion Text2Image Memory (GB)](./pictures/benchmark_sd_txt2img_mem.svg)
+<img src="./pictures/pretty_benchmark_sd_txt2img_mem.png" alt="Stable Diffusion Text2Image Memory (GB)" width="640"/>
 
+Memory usage is observed to be consistent across all tested GPUs:
+* It takes about `7.7 GB` GPU memory to run single-precision inference with batch size one.
+* It takes about `4.5 GB` GPU memory to run half-precision inference with batch size one.
+
+
+Latency measures how quickly a _single_ input can be processed, which is critical to online applications that don't tolerate even the slightest delay. However, some (offline) applications may focus on "throughput", which measures the total volume of data processed in a fixed amount of time.
 
 ## Throughput
 
-Latency measures how quickly a _single_ input can be processed, which is critical to online applications that don't tolerate even the slightest delay. However, some (offline) applications may focus on "throughput", which measures the total volume of data processed in a fixed amount of time. 
 
 Our throughput benchmark pushes the batch size to the maximum for each GPU, and measures the number of images they can process per minute. The reason for maximizing the batch size is to keep tensor cores busy so that computation can dominate the workload, avoiding any non-computational bottlenecks.
 
-* Once again, A100 80GB has the highest throughput. In the meantime, the gap between A100 80GB and other cards are enlarged due to the largest batch size that can be used on this card. 
+We run a series of throughput experiment in pytorch with half-precision and using the maximum batch size that can be used for each GPU:
 
-![Stable Diffusion Text2Image Throughput (images/minute)](./pictures/benchmark_sd_txt2img_throughput.svg)
+<img src="./pictures/pretty_benchmark_sd_txt2img_throughput.png" alt="Stable Diffusion Text2Image Throughput (images/minute)]" width="390"/>
+
+We note:
+* Once again, A100 80GB is the top performer and has the highest throughput.
+* The gap between A100 80GB and other cards in terms of throughput can be explained by the larger maximum batch size that can be used on this card. 
 
 
 As a concrete example, the chart below shows how A100 80GB's throughput increases by `64%` when we changed the batch size from 1 to 28 (the largest without causing an out of memory error). It is also interesting to see that the increase is not linear and flattens out when batch size reaches a certain value, at which point the tensor cores on the GPU are saturated and any new data in the GPU memory will have to be queued up before getting their own computing resources. 
