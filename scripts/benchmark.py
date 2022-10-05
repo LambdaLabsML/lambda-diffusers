@@ -137,7 +137,7 @@ def run_benchmark_grid(grid, n_repeats, num_inference_steps):
     csv_fpath = pathlib.Path(__file__).parent.parent / "benchmark_tmp.csv"
     # create benchmark.csv if not exists
     if not os.path.isfile(csv_fpath):
-        header = ["device", "precision", "n_samples", "latency", "memory"]
+        header = ["device", "precision", "runtime", "n_samples", "latency", "memory"]
         with open(csv_fpath, "w") as f:
             writer = csv.writer(f)
             writer.writerow(header)
