@@ -1,7 +1,9 @@
-torch
-torchvision
-transformers
-ftfy
-Pillow
-diffusers
+--extra-index-url https://download.pytorch.org/whl/cu116 torch
+
+transformers==4.22.1
+ftfy==6.1.1
+Pillow==9.2.0
+diffusers==0.3.0
+onnxruntime==1.12.1
+scikit-image==0.19.3
 -e .

@@ -98,6 +98,32 @@ for idx, im in enumerate(images):
   im.save(f"{idx:06}.png")
 ```
 
+## Benchmarking inference
+
+Detailed benchmark documentation can be found [here](./docs/benchmark.md).
+
+### Setup
+
+Before running the benchmark, make sure you have completed the repository [installation steps](#installation).
+
+You will then need to set the huggingface access token:
+1. Create a user account on HuggingFace and generate an access token.
+2. Set your huggingface access token as the `ACCESS_TOKEN` environment variable:
+```
+export ACCESS_TOKEN=<hf_...>
+```
+
+### Usage
+
+Launch the benchmark script to append benchmark results to the existing [benchmark.csv](./benchmark.csv) results file:
+```
+python ./scripts/benchmark.py
+```
+
+### Results
+
+<img src="./docs/pictures/pretty_benchmark_sd_txt2img_latency.png" alt="Stable Diffusion Text2Image Latency (seconds)" width="850"/>
+
 ## Links
 
 - [Captioned Pokémon dataset](https://huggingface.co/datasets/lambdalabs/pokemon-blip-captions)
