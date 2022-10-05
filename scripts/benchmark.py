@@ -134,7 +134,7 @@ def run_benchmark_grid(grid, n_repeats, num_inference_steps):
     * n_repeats: nb datapoints for inference latency benchmark
     """
 
-    csv_fpath = pathlib.Path(__file__).parent.parent / "benchmark.csv"
+    csv_fpath = pathlib.Path(__file__).parent.parent / "benchmark_tmp.csv"
     # create benchmark.csv if not exists
     if not os.path.isfile(csv_fpath):
         header = ["device", "precision", "n_samples", "latency", "memory"]
@@ -142,7 +142,7 @@ def run_benchmark_grid(grid, n_repeats, num_inference_steps):
             writer = csv.writer(f)
             writer.writerow(header)
 
-    # append new benchmark results to it if benchmark.csv already exists
+    # append new benchmark results to it if benchmark_tmp.csv already exists
     with open(csv_fpath, "a") as f:
         writer = csv.writer(f)
         device_desc = get_device_description()
@@ -158,13 +158,15 @@ def run_benchmark_grid(grid, n_repeats, num_inference_steps):
                             num_inference_steps=num_inference_steps
                         )
                     except Exception as e:
-                        print(str(e))
                         if "CUDA out of memory" in str(e) or "Failed to allocate memory" in str(e):
+                            print(str(e))
                             torch.cuda.empty_cache()
                             new_log = {
                                     "latency": -1.00,
                                     "memory": -1.00
                             }
+                        else:
+                            raise e
 
                     latency = new_log["latency"]
                     memory = new_log["memory"]
