@@ -61,7 +61,7 @@ export ACCESS_TOKEN=<your-hugging-face-access-token-here>
 
 Run the benchmark program from the container and export the output `.csv` file to the host:
 ```
-containerid=$(docker run --gpus all -e ACCESS_TOKEN=${ACCESS_TOKEN} --entrypoint "python3" benchmark:latest scripts/benchmark.py --samples=1,2,4,8,16) && \
+containerid=$(docker run --gpus all -e ACCESS_TOKEN=${ACCESS_TOKEN} -d --entrypoint "python3 -u" benchmark:latest scripts/benchmark.py --samples=1,2,4,8,16) && \
 docker wait ${containerid} && \
 docker cp \
   ${containerid}:/lambda-diffusers/benchmark_tmp.csv ./benchmark_tmp.csv
