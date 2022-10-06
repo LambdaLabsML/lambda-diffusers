@@ -1,6 +1,7 @@
 model_zoo/
 outputs/
 *benchmark_tmp.csv
+*benchmark.tar
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
