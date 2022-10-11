@@ -5,7 +5,6 @@ import argparse
 import pathlib
 import csv
 from contextlib import nullcontext
-from sqlalchemy import false
 import torch
 from torch import autocast
 from diffusers import StableDiffusionPipeline, StableDiffusionOnnxPipeline
