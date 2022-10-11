@@ -118,14 +118,14 @@ python ./scripts/benchmark_quality.py
 
 The following instructions show how to run the benchmarking program from a docker container on Ubuntu.
 
-## Prerequisites
+#### Prerequisites
 
-### Get a huggingface access token
+#### Get a huggingface access token
 
 Create a huggingface account.
 Get a [huggingface access token](https://huggingface.co/docs/hub/security-tokens).
 
-### Install NVIDIA docker
+#### Install NVIDIA docker
 
 This section can be skipped if the environment already uses [Lambda Stack](https://lambdalabs.com/lambda-stack-deep-learning-software) or if the experiments are running on a [Lambda cloud](https://lambdalabs.com/service/gpu-cloud) instance as docker and `nvidia-container-toolkit` comes pre-installed in these cases.
 
@@ -165,7 +165,7 @@ sudo docker run --rm --gpus all nvidia/cuda:11.2.1-base-ubuntu20.04 nvidia-smi
 docker build -t benchmark -f ./benchmarking/Dockerfile .   
 ```
 
-## Running the benchmark
+#### Running the benchmark
 
 Set the HuggingFace access token as environment variable:
 ```
