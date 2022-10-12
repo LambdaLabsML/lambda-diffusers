@@ -108,7 +108,18 @@ Launch the `benchmark.py` script to append benchmark results to the existing [be
 python ./scripts/benchmark.py
 ```
 
-Lauch the `benchmark_quality.py` script to compare the output of single-precision and half-precision models:
+Here are the following flags that can be set on the `benchmark.py` script:
+* `--samples` sets the sample size for which to run a benchmark and is passed as a comma separated list of values such as `1,2,4,8,16`. Default is `1`.
+* `--steps` sets the number of inference steps and is passed as an integer value, eg: `50`. Default is `40`.
+* `--repeats` sets the number of times to repeat each run with a given set of parameter value before reporting their average inference latencies. It is passed as an integer value, eg: `2`. Default is `3`.
+* `--autocast` sets whether or not to add cuda autocast runs to the benchmark (respectively `yes` and `no`). Default is `no`.
+
+An example of running the benchmark script options set:
+```
+python ./scripts/benchmark.py --samples=1,2,4 --steps=50 --repeats=3 --autocast=no
+```
+
+Launch the `benchmark_quality.py` script to compare the output of single-precision and half-precision models:
 ```
 python ./scripts/benchmark_quality.py
 ```

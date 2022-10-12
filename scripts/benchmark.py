@@ -181,11 +181,9 @@ def run_benchmark_grid(grid, n_repeats, num_inference_steps):
         device_desc = get_device_description()
         for n_samples in grid["n_samples"]:
             for precision in grid["precision"]:
-                use_autocast = False
                 if precision == "half":
                     for autocast in grid["autocast"]:
-                        if autocast == "yes":
-                            use_autocast = True
+                        use_autocast = (autocast == "yes")
                         for backend in grid["backend"]:
                             try:
                                 new_log = run_benchmark(
