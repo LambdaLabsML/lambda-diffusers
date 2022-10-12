@@ -10,7 +10,6 @@ from torch import autocast
 from diffusers import StableDiffusionPipeline, StableDiffusionOnnxPipeline
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
 prompt = "a photo of an astronaut riding a horse on mars"
 
 
@@ -30,8 +29,8 @@ def get_inference_pipeline(precision, backend):
             revision="main" if precision == "single" else "fp16",
             use_auth_token=os.environ["ACCESS_TOKEN"],
             torch_dtype=torch.float32 if precision == "single" else torch.float16,
-        )
-        pipe = pipe.to(device)
+        ).to(device)
+
     else:
         pipe = StableDiffusionOnnxPipeline.from_pretrained(
             "CompVis/stable-diffusion-v1-4",
@@ -42,23 +41,18 @@ def get_inference_pipeline(precision, backend):
             else "CUDAExecutionProvider",
             torch_dtype=torch.float32 if precision == "single" else torch.float16,
         )
-
     # Disable safety
-    disable_safety = True
-    if disable_safety:
+    def null_safety(images, **kwargs):
+        return images, False
 
-        def null_safety(images, **kwargs):
-            return images, False
+    pipe.safety_checker = null_safety
 
-        pipe.safety_checker = null_safety
     return pipe
 
 
 def do_inference(pipe, n_samples, use_autocast, num_inference_steps):
     torch.cuda.empty_cache()
-    context = (
-        autocast if (device.type == "cuda" and use_autocast) else nullcontext
-    )
+    context = autocast if (device.type == "cuda" and use_autocast) else nullcontext
     with context("cuda"):
         images = pipe(
             prompt=[prompt] * n_samples, num_inference_steps=num_inference_steps
@@ -67,9 +61,7 @@ def do_inference(pipe, n_samples, use_autocast, num_inference_steps):
     return images
 
 
-def get_inference_time(
-    pipe, n_samples, n_repeats, use_autocast, num_inference_steps
-):
+def get_inference_time(pipe, n_samples, n_repeats, use_autocast, num_inference_steps):
     from torch.utils.benchmark import Timer
 
     timer = Timer(
@@ -121,14 +113,14 @@ def run_benchmark(
     logs = {
         "memory": 0.00
         if device.type == "cpu"
-        else get_inference_memory(
-            pipe, n_samples, use_autocast, num_inference_steps
-        ),
+        else get_inference_memory(pipe, n_samples, use_autocast, num_inference_steps),
         "latency": get_inference_time(
             pipe, n_samples, n_repeats, use_autocast, num_inference_steps
         ),
     }
-    print(f"n_samples: {n_samples}\tprecision: {precision}\tautocast: {use_autocast}\tbackend: {backend}")
+    print(
+        f"n_samples: {n_samples}\tprecision: {precision}\tautocast: {use_autocast}\tbackend: {backend}"
+    )
     print(logs, "\n")
     return logs
 
@@ -181,42 +173,45 @@ def run_benchmark_grid(grid, n_repeats, num_inference_steps):
         device_desc = get_device_description()
         for n_samples in grid["n_samples"]:
             for precision in grid["precision"]:
-                if precision == "half":
-                    use_autocast = (autocast == "yes")
+                # restrict enabling autocast to half precision
+                if precision == "single":
+                    use_autocast_vals = ("no",)
                 else:
-                    use_autocast = False
-                for backend in grid["backend"]:
-                    try:
-                        new_log = run_benchmark(
-                            n_repeats=n_repeats,
-                            n_samples=n_samples,
-                            precision=precision,
-                            use_autocast=use_autocast,
-                            backend=backend,
-                            num_inference_steps=num_inference_steps,
-                        )
-                    except Exception as e:
-                        if "CUDA out of memory" in str(
-                            e
-                        ) or "Failed to allocate memory" in str(e):
-                            print(str(e))
-                            torch.cuda.empty_cache()
-                            new_log = {"latency": -1.00, "memory": -1.00}
-                        else:
-                            raise e
+                    use_autocast_vals = grid["autocast"]
+                for use_autocast_val in use_autocast_vals:
+                    use_autocast = use_autocast_val == "yes"
+                    for backend in grid["backend"]:
+                        try:
+                            new_log = run_benchmark(
+                                n_repeats=n_repeats,
+                                n_samples=n_samples,
+                                precision=precision,
+                                use_autocast=use_autocast,
+                                backend=backend,
+                                num_inference_steps=num_inference_steps,
+                            )
+                        except Exception as e:
+                            if "CUDA out of memory" in str(
+                                e
+                            ) or "Failed to allocate memory" in str(e):
+                                print(str(e))
+                                torch.cuda.empty_cache()
+                                new_log = {"latency": -1.00, "memory": -1.00}
+                            else:
+                                raise e
 
-                    latency = new_log["latency"]
-                    memory = new_log["memory"]
-                    new_row = [
-                        device_desc,
-                        precision,
-                        autocast,
-                        backend,
-                        n_samples,
-                        latency,
-                        memory,
-                    ]
-                    writer.writerow(new_row)
+                        latency = new_log["latency"]
+                        memory = new_log["memory"]
+                        new_row = [
+                            device_desc,
+                            precision,
+                            use_autocast,
+                            backend,
+                            n_samples,
+                            latency,
+                            memory,
+                        ]
+                        writer.writerow(new_row)
 
 
 if __name__ == "__main__":
