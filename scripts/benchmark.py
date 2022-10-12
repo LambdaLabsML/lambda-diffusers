@@ -182,40 +182,41 @@ def run_benchmark_grid(grid, n_repeats, num_inference_steps):
         for n_samples in grid["n_samples"]:
             for precision in grid["precision"]:
                 if precision == "half":
-                    for autocast in grid["autocast"]:
-                        use_autocast = (autocast == "yes")
-                        for backend in grid["backend"]:
-                            try:
-                                new_log = run_benchmark(
-                                    n_repeats=n_repeats,
-                                    n_samples=n_samples,
-                                    precision=precision,
-                                    use_autocast=use_autocast,
-                                    backend=backend,
-                                    num_inference_steps=num_inference_steps,
-                                )
-                            except Exception as e:
-                                if "CUDA out of memory" in str(
-                                    e
-                                ) or "Failed to allocate memory" in str(e):
-                                    print(str(e))
-                                    torch.cuda.empty_cache()
-                                    new_log = {"latency": -1.00, "memory": -1.00}
-                                else:
-                                    raise e
+                    use_autocast = (autocast == "yes")
+                else:
+                    use_autocast = False
+                for backend in grid["backend"]:
+                    try:
+                        new_log = run_benchmark(
+                            n_repeats=n_repeats,
+                            n_samples=n_samples,
+                            precision=precision,
+                            use_autocast=use_autocast,
+                            backend=backend,
+                            num_inference_steps=num_inference_steps,
+                        )
+                    except Exception as e:
+                        if "CUDA out of memory" in str(
+                            e
+                        ) or "Failed to allocate memory" in str(e):
+                            print(str(e))
+                            torch.cuda.empty_cache()
+                            new_log = {"latency": -1.00, "memory": -1.00}
+                        else:
+                            raise e
 
-                            latency = new_log["latency"]
-                            memory = new_log["memory"]
-                            new_row = [
-                                device_desc,
-                                precision,
-                                autocast,
-                                backend,
-                                n_samples,
-                                latency,
-                                memory,
-                            ]
-                            writer.writerow(new_row)
+                    latency = new_log["latency"]
+                    memory = new_log["memory"]
+                    new_row = [
+                        device_desc,
+                        precision,
+                        autocast,
+                        backend,
+                        n_samples,
+                        latency,
+                        memory,
+                    ]
+                    writer.writerow(new_row)
 
 
 if __name__ == "__main__":
