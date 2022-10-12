@@ -1,7 +1,5 @@
 --extra-index-url https://download.pytorch.org/whl/cu116 torch
 
-torchvision==0.13.1
-torch==1.12.1
 transformers==4.22.1
 ftfy==6.1.1
 Pillow==9.2.0
