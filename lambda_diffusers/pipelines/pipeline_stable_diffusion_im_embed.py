@@ -25,7 +25,6 @@ class StableDiffusionImageEmbedPipeline(DiffusionPipeline):
         feature_extractor: CLIPFeatureExtractor,
     ):
         super().__init__()
-        scheduler = scheduler.set_format("pt")
         self.register_modules(
             vae=vae,
             image_encoder=image_encoder,
