@@ -31,21 +31,33 @@ A fine-tuned version of Stable Diffusion conditioned on CLIP image embeddings to
 ### Usage
 
 ```python
-from pathlib import Path
-from lambda_diffusers import StableDiffusionImageEmbedPipeline
+from diffusers import StableDiffusionImageVariationPipeline
 from PIL import Image
-import torch
-device = "cuda" if torch.cuda.is_available() else "cpu"
-pipe = StableDiffusionImageEmbedPipeline.from_pretrained("lambdalabs/sd-image-variations-diffusers")
-pipe = pipe.to(device)
-im = Image.open("your/input/image/here.jpg")
-num_samples = 4
-image = pipe(num_samples*[im], guidance_scale=3.0)
-image = image["sample"]
-base_path = Path("outputs/im2im")
-base_path.mkdir(exist_ok=True, parents=True)
-for idx, im in enumerate(image):
-    im.save(base_path/f"{idx:06}.jpg")
+
+device = "cuda:0"
+sd_pipe = StableDiffusionImageVariationPipeline.from_pretrained(
+  "lambdalabs/sd-image-variations-diffusers",
+  revision="v2.0",
+  )
+sd_pipe = sd_pipe.to(device)
+
+im = Image.open("path/to/image.jpg")
+tform = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Resize(
+        (224, 224),
+        interpolation=transforms.InterpolationMode.BICUBIC,
+        antialias=False,
+        ),
+    transforms.Normalize(
+      [0.48145466, 0.4578275, 0.40821073],
+      [0.26862954, 0.26130258, 0.27577711]),
+])
+inp = tform(im).to(device)
+
+out = sd_pipe(inp, guidance_scale=3)
+out["images"][0].save("result.jpg")
+
 ```
 
 ## Pokemon text to image
