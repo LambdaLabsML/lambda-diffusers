@@ -5,6 +5,7 @@ import argparse
 import pathlib
 import csv
 from contextlib import nullcontext
+import itertools
 import torch
 from torch import autocast
 from diffusers import StableDiffusionPipeline, StableDiffusionOnnxPipeline
@@ -13,12 +14,18 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 prompt = "a photo of an astronaut riding a horse on mars"
 
+def make_bool(yes_or_no):
+    if yes_or_no.lower() == "yes":
+        return True
+    elif yes_or_no.lower() == "no":
+        return False
+    else:
+        raise ValueError(f"unrecognised input {yes_or_no}")
 
 def get_inference_pipeline(precision, backend):
     """
     returns HuggingFace diffuser pipeline
     cf https://github.com/huggingface/diffusers#text-to-image-generation-with-stable-diffusion
-    note: could not download from CompVis/stable-diffusion-v1-4 (access restricted)
     """
 
     assert precision in ("half", "single"), "precision in ['half', 'single']"
@@ -28,7 +35,6 @@ def get_inference_pipeline(precision, backend):
         pipe = StableDiffusionPipeline.from_pretrained(
             "CompVis/stable-diffusion-v1-4",
             revision="main" if precision == "single" else "fp16",
-            use_auth_token=os.environ["ACCESS_TOKEN"],
             torch_dtype=torch.float32 if precision == "single" else torch.float16,
         )
         pipe = pipe.to(device)
@@ -103,9 +109,9 @@ def get_inference_memory(pipe, n_samples, use_autocast, num_inference_steps):
     mem = torch.cuda.memory_reserved()
     return round(mem / 1e9, 2)
 
-
+@torch.inference_mode()
 def run_benchmark(
-    n_repeats, n_samples, precision, use_autocast, backend, num_inference_steps
+    n_repeats, n_samples, precision, use_autocast, xformers, backend, num_inference_steps
 ):
     """
     * n_repeats: nb datapoints for inference latency benchmark
@@ -116,7 +122,14 @@ def run_benchmark(
     dict like {'memory usage': 17.70, 'latency': 86.71'}
     """
 
+    print(f"n_samples: {n_samples}\tprecision: {precision}\tautocast: {use_autocast}\txformers: {xformers}\tbackend: {backend}")
+
     pipe = get_inference_pipeline(precision, backend)
+    if xformers:
+        pipe.enable_xformers_memory_efficient_attention()
+
+    if n_samples>16:
+        pipe.enable_vae_slicing()
 
     logs = {
         "memory": 0.00
@@ -128,8 +141,8 @@ def run_benchmark(
             pipe, n_samples, n_repeats, use_autocast, num_inference_steps
         ),
     }
-    print(f"n_samples: {n_samples}\tprecision: {precision}\tautocast: {use_autocast}\tbackend: {backend}")
     print(logs, "\n")
+    print("============================")
     return logs
 
 
@@ -148,7 +161,7 @@ def get_device_description():
         return torch.cuda.get_device_name()
 
 
-def run_benchmark_grid(grid, n_repeats, num_inference_steps):
+def run_benchmark_grid(grid, n_repeats, num_inference_steps, csv_fpath):
     """
     * grid : dict like
         {
@@ -159,13 +172,13 @@ def run_benchmark_grid(grid, n_repeats, num_inference_steps):
     * n_repeats: nb datapoints for inference latency benchmark
     """
 
-    csv_fpath = pathlib.Path(__file__).parent.parent / "benchmark_tmp.csv"
     # create benchmark.csv if not exists
     if not os.path.isfile(csv_fpath):
         header = [
             "device",
             "precision",
             "autocast",
+            "xformers"
             "runtime",
             "n_samples",
             "latency",
@@ -179,45 +192,44 @@ def run_benchmark_grid(grid, n_repeats, num_inference_steps):
     with open(csv_fpath, "a") as f:
         writer = csv.writer(f)
         device_desc = get_device_description()
-        for n_samples in grid["n_samples"]:
-            for precision in grid["precision"]:
-                use_autocast = False
-                if precision == "half":
-                    for autocast in grid["autocast"]:
-                        if autocast == "yes":
-                            use_autocast = True
-                        for backend in grid["backend"]:
-                            try:
-                                new_log = run_benchmark(
-                                    n_repeats=n_repeats,
-                                    n_samples=n_samples,
-                                    precision=precision,
-                                    use_autocast=use_autocast,
-                                    backend=backend,
-                                    num_inference_steps=num_inference_steps,
-                                )
-                            except Exception as e:
-                                if "CUDA out of memory" in str(
-                                    e
-                                ) or "Failed to allocate memory" in str(e):
-                                    print(str(e))
-                                    torch.cuda.empty_cache()
-                                    new_log = {"latency": -1.00, "memory": -1.00}
-                                else:
-                                    raise e
+        for trial in itertools.product(*grid.values()):
 
-                            latency = new_log["latency"]
-                            memory = new_log["memory"]
-                            new_row = [
-                                device_desc,
-                                precision,
-                                autocast,
-                                backend,
-                                n_samples,
-                                latency,
-                                memory,
-                            ]
-                            writer.writerow(new_row)
+            n_samples, precision, use_autocast, xformers, backend = trial
+            use_autocast = make_bool(use_autocast)
+            xformers = make_bool(xformers)
+
+            try:
+                new_log = run_benchmark(
+                    n_repeats=n_repeats,
+                    n_samples=n_samples,
+                    precision=precision,
+                    use_autocast=use_autocast,
+                    xformers=xformers,
+                    backend=backend,
+                    num_inference_steps=num_inference_steps,
+                )
+            except Exception as e:
+                if "CUDA out of memory" in str(
+                    e
+                ) or "Failed to allocate memory" in str(e):
+                    print(str(e))
+                    torch.cuda.empty_cache()
+                    new_log = {"latency": -1.00, "memory": -1.00}
+                else:
+                    raise e
+
+            latency = new_log["latency"]
+            memory = new_log["memory"]
+            new_row = [
+                device_desc,
+                precision,
+                use_autocast,
+                backend,
+                n_samples,
+                latency,
+                memory,
+            ]
+            writer.writerow(new_row)
 
 
 if __name__ == "__main__":
@@ -249,6 +261,20 @@ if __name__ == "__main__":
         help="If 'yes', will perform additional runs with autocast activated for half precision inferences",
     )
 
+    parser.add_argument(
+        "--xformers",
+        default="yes",
+        type=str,
+        help="If 'yes', will use xformers flash attention",
+    )
+
+    parser.add_argument(
+        "--output_file",
+        default="results.py",
+        type=str,
+        help="Path to output csv file to write",
+    )
+
     args = parser.parse_args()
 
     grid = {
@@ -257,10 +283,11 @@ if __name__ == "__main__":
         # Remove autocast won't help. Ref:
         # https://github.com/CompVis/stable-diffusion/issues/307
         "precision": ("single",) if device.type == "cpu" else ("single", "half"),
-        "autocast": ("no",) if args.autocast == "no" else ("yes", "no"),
+        "autocast": args.autocast.split(","),
+        "xformers": args.xformers.split(","),
         # Only use onnx for cpu, until issues are fixed by upstreams. Ref:
         # https://github.com/huggingface/diffusers/issues/489#issuecomment-1261577250
         # https://github.com/huggingface/diffusers/pull/440
         "backend": ("pytorch", "onnx") if device.type == "cpu" else ("pytorch",),
     }
-    run_benchmark_grid(grid, n_repeats=args.repeats, num_inference_steps=args.steps)
+    run_benchmark_grid(grid, n_repeats=args.repeats, num_inference_steps=args.steps, csv_fpath=args.output_file)
