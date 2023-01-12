@@ -1,58 +1,41 @@
-Intel(R) Core(TM) i7-6850K CPU @ 3.60GHz,single,pytorch,1,458.97,0.0
-Intel(R) Core(TM) i7-6850K CPU @ 3.60GHz,single,onnx,1,286.13,0.0
-NVIDIA GeForce RTX 3090,single,pytorch,1,7.96,7.72
-NVIDIA GeForce RTX 3090,half,pytorch,1,4.83,4.54
-NVIDIA GeForce RTX 3090,single,pytorch,2,14.49,11
-NVIDIA GeForce RTX 3090,half,pytorch,2,8.42,8.75
-NVIDIA GeForce RTX 3090,single,pytorch,4,27.94,17.69
-NVIDIA GeForce RTX 3090,half,pytorch,4,15.87,15.36
-NVIDIA GeForce RTX 3090,single,pytorch,8,-1.0,-1.0
-NVIDIA GeForce RTX 3090,half,pytorch,8,-1.0,-1.0
-NVIDIA RTX A5500,single,pytorch,1,8.55,7.69
-NVIDIA RTX A5500,half,pytorch,1,5.05,4.58
-NVIDIA RTX A5500,single,pytorch,2,15.71,11
-NVIDIA RTX A5500,half,pytorch,2,9.37,8.8
-NVIDIA RTX A5500,single,pytorch,4,30.51,17.69
-NVIDIA RTX A5500,half,pytorch,4,16.97,15.33
-NVIDIA RTX A5500,single,pytorch,8,-1.0,-1.0
-NVIDIA RTX A5500,half,pytorch,8,-1.0,-1.0
-AMD EPYC 7352 24-Core Processor,single,pytorch,1,529.93,0.0
-AMD EPYC 7352 24-Core Processor,single,onnx,1,223.19,0.0
-NVIDIA GeForce RTX 3080,single,pytorch,4,-1.0,-1.0
-NVIDIA GeForce RTX 3080,half,pytorch,4,-1.0,-1.0
-NVIDIA GeForce RTX 3080,single,pytorch,1,-1.0,-1.0
-NVIDIA GeForce RTX 3080,half,pytorch,1,5.59,4.52
-NVIDIA GeForce RTX 3080,single,pytorch,2,-1.0,-1.0
-NVIDIA GeForce RTX 3080,half,pytorch,2,-1.0,-1.0
-NVIDIA A100 80GB PCIe,single,pytorch,1,6.39,7.75
-NVIDIA A100 80GB PCIe,half,pytorch,1,3.74,4.55
-NVIDIA A100 80GB PCIe,single,pytorch,2,11.12,11.05
-NVIDIA A100 80GB PCIe,half,pytorch,2,5.72,8.77
-NVIDIA A100 80GB PCIe,single,pytorch,4,20.18,17.63
-NVIDIA A100 80GB PCIe,half,pytorch,4,10.04,15.34
-NVIDIA A100 80GB PCIe,single,pytorch,8,38.88,30.88
-NVIDIA A100 80GB PCIe,half,pytorch,8,18.68,28.47
-NVIDIA A100 80GB PCIe,single,pytorch,16,76.92,57.46
-NVIDIA A100 80GB PCIe,half,pytorch,16,36.67,54.73
-NVIDIA A100 80GB PCIe,half,pytorch,28,63.88,78.78
-NVIDIA RTX A6000,single,pytorch,1,8.09,7.75
-NVIDIA RTX A6000,half,pytorch,1,5.03,4.53
-NVIDIA RTX A6000,single,pytorch,2,14.86,10.98
-NVIDIA RTX A6000,half,pytorch,2,9.03,8.79
-NVIDIA RTX A6000,single,pytorch,4,27.92,17.62
-NVIDIA RTX A6000,half,pytorch,4,17.0,15.34
-NVIDIA RTX A6000,single,pytorch,8,53.95,30.88
-NVIDIA RTX A6000,half,pytorch,8,32.57,28.51
-NVIDIA RTX A6000,half,pytorch,16,63.16,46.11
-Quadro RTX 8000,single,pytorch,1,12.3,7.71
-Quadro RTX 8000,half,pytorch,1,5.93,4.52
-Quadro RTX 8000,single,pytorch,2,24.42,9.16
-Quadro RTX 8000,half,pytorch,2,10.92,7.02
-Quadro RTX 8000,single,pytorch,4,42.56,15.58
-Quadro RTX 8000,half,pytorch,4,21.24,12.39
-Quadro RTX 8000,single,pytorch,8,76.96,23.11
-Quadro RTX 8000,half,pytorch,8,40.52,20.98
-Quadro RTX 8000,single,pytorch,16,152.55,42.47
-Quadro RTX 8000,half,pytorch,16,80.31,38.18
-Quadro RTX 8000,single,pytorch,32,-1.0,-1.0
-Quadro RTX 8000,half,pytorch,32,-1.0,-1.0
+device,precision,autocast,xformers,runtime,n_samples,latency,memory
+NVIDIA A10,half,FALSE,TRUE,pytorch,32,48.79,7.37
+NVIDIA A10,half,FALSE,TRUE,pytorch,16,24.65,19.86
+NVIDIA A10,half,FALSE,TRUE,pytorch,8,12.93,11.05
+NVIDIA A10,half,FALSE,TRUE,pytorch,128,212.94,22.18
+NVIDIA A10,half,FALSE,TRUE,pytorch,4,6.68,6.63
+NVIDIA A10,half,FALSE,TRUE,pytorch,64,108.26,17.54
+NVIDIA A10,half,FALSE,TRUE,pytorch,2,3.65,4.3
+NVIDIA A10,half,FALSE,TRUE,pytorch,1,2.01,3.13
+NVIDIA A100 80GB PCIe,half,FALSE,TRUE,pytorch,128,73.72,22.68
+NVIDIA A100 80GB PCIe,half,FALSE,TRUE,pytorch,64,36.89,12.46
+NVIDIA A100 80GB PCIe,half,FALSE,TRUE,pytorch,32,18.75,7.34
+NVIDIA A100 80GB PCIe,half,FALSE,TRUE,pytorch,16,9.93,19.81
+NVIDIA A100 80GB PCIe,half,FALSE,TRUE,pytorch,8,5.25,11.12
+NVIDIA A100 80GB PCIe,half,FALSE,TRUE,pytorch,2,1.73,4.33
+NVIDIA A100 80GB PCIe,half,FALSE,TRUE,pytorch,4,3.73,6.62
+NVIDIA A100 80GB PCIe,half,FALSE,TRUE,pytorch,1,1.17,3.19
+NVIDIA A100-SXM4-40GB,half,FALSE,TRUE,pytorch,128,69.31,22.68
+NVIDIA A100-SXM4-40GB,half,FALSE,TRUE,pytorch,64,34.92,13.79
+NVIDIA A100-SXM4-40GB,half,FALSE,TRUE,pytorch,32,17.72,7.33
+NVIDIA A100-SXM4-40GB,half,FALSE,TRUE,pytorch,16,9.13,19.8
+NVIDIA A100-SXM4-40GB,half,FALSE,TRUE,pytorch,8,4.85,11.12
+NVIDIA A100-SXM4-40GB,half,FALSE,TRUE,pytorch,4,2.68,6.61
+NVIDIA A100-SXM4-40GB,half,FALSE,TRUE,pytorch,2,1.66,4.32
+NVIDIA A100-SXM4-40GB,half,FALSE,TRUE,pytorch,1,1.18,3.18
+NVIDIA RTX A6000,half,FALSE,TRUE,pytorch,32,31.19,7.65
+NVIDIA RTX A6000,half,FALSE,TRUE,pytorch,16,15.62,20.01
+NVIDIA RTX A6000,half,FALSE,TRUE,pytorch,128,130.38,34.36
+NVIDIA RTX A6000,half,FALSE,TRUE,pytorch,64,65.72,23.84
+NVIDIA RTX A6000,half,FALSE,TRUE,pytorch,8,8.39,11.19
+NVIDIA RTX A6000,half,FALSE,TRUE,pytorch,4,4.56,6.64
+NVIDIA RTX A6000,half,FALSE,TRUE,pytorch,2,2.84,4.37
+NVIDIA RTX A6000,half,FALSE,TRUE,pytorch,1,1.93,3.15
+Tesla V100-SXM2-16GB,half,FALSE,TRUE,pytorch,64,79.82,13.51
+Tesla V100-SXM2-16GB,half,FALSE,TRUE,pytorch,32,40.13,7.73
+Tesla V100-SXM2-16GB,half,FALSE,TRUE,pytorch,16,20.96,10.87
+Tesla V100-SXM2-16GB,half,FALSE,TRUE,pytorch,8,10.64,10.45
+Tesla V100-SXM2-16GB,half,FALSE,TRUE,pytorch,4,5.62,6.42
+Tesla V100-SXM2-16GB,half,FALSE,TRUE,pytorch,2,3.08,4.17
+Tesla V100-SXM2-16GB,half,FALSE,TRUE,pytorch,1,1.84,3.24
+Tesla V100-SXM2-16GB,half,FALSE,,pytorch,128,-1,-1
