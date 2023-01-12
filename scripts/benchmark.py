@@ -224,6 +224,7 @@ def run_benchmark_grid(grid, n_repeats, num_inference_steps, csv_fpath):
                 device_desc,
                 precision,
                 use_autocast,
+                xformers,
                 backend,
                 n_samples,
                 latency,
