@@ -1,5 +1,7 @@
 # Benchmarking Diffuser Models
 
+__We are currently in the process of updating our Stable Diffusion benchmark using more recent version of Diffusers and taking advantage of xformers. See the summary of interim result [here](./benchmark-update.md)__
+
 We present a benchmark of [Stable Diffusion](https://huggingface.co/CompVis/stable-diffusion) model inference.  This text2image model uses a text prompt as input and outputs an image of resolution `512x512`.
 
 Our experiments analyze inference performance in terms of speed, memory consumption, throughput, and quality of the output images. We look at how different choices in hardware (GPU model, GPU vs CPU) and software (single vs half precision, pytorch vs onnxruntime) affect inference performance.
@@ -27,10 +29,10 @@ We run these same inference jobs CPU devices to put in perspective the inference
 
 
 We note that:
-* GPUs are significantly faster -- by one or two orders of magnitudes depending on the precisions. 
+* GPUs are significantly faster -- by one or two orders of magnitudes depending on the precisions.
 * `onnxruntime` can reduce the latency for CPU by about `40%` to `50%`, depending on the type of CPUs.
 
-ONNX currently does not have [stable support](https://github.com/huggingface/diffusers/issues/489) for Huggingface diffusers.  
+ONNX currently does not have [stable support](https://github.com/huggingface/diffusers/issues/489) for Huggingface diffusers.
 We will investigate `onnxruntime-gpu` in future benchmarks.
 
 
@@ -62,10 +64,10 @@ We run a series of throughput experiment in pytorch with half-precision and usin
 
 We note:
 * Once again, A100 80GB is the top performer and has the highest throughput.
-* The gap between A100 80GB and other cards in terms of throughput can be explained by the larger maximum batch size that can be used on this card. 
+* The gap between A100 80GB and other cards in terms of throughput can be explained by the larger maximum batch size that can be used on this card.
 
 
-As a concrete example, the chart below shows how A100 80GB's throughput increases by `64%` when we changed the batch size from 1 to 28 (the largest without causing an out of memory error). It is also interesting to see that the increase is not linear and flattens out when batch size reaches a certain value, at which point the tensor cores on the GPU are saturated and any new data in the GPU memory will have to be queued up before getting their own computing resources. 
+As a concrete example, the chart below shows how A100 80GB's throughput increases by `64%` when we changed the batch size from 1 to 28 (the largest without causing an out of memory error). It is also interesting to see that the increase is not linear and flattens out when batch size reaches a certain value, at which point the tensor cores on the GPU are saturated and any new data in the GPU memory will have to be queued up before getting their own computing resources.
 
 <img src="./pictures/pretty_benchmark_sd_txt2img_batchsize_vs_throughput.png" alt="Stable Diffusion Text2Image Batch size vs Throughput (images/minute)" width="380"/>
 
@@ -76,7 +78,7 @@ We are curious about whether half-precision introduces degradations to the quali
 
 ![Evolution of precision v degradation across 100 steps](./pictures/benchmark_sd_precision_history.gif)
 
-Our observation is that there are indeed visible differences between the single-precision output and the half-precision output, especially in the early steps. The differences often decrease with the number of steps, but might not always vanish. 
+Our observation is that there are indeed visible differences between the single-precision output and the half-precision output, especially in the early steps. The differences often decrease with the number of steps, but might not always vanish.
 
 Interestingly, such a difference may not imply artifacts in half-precision's outputs. For example, in step 70, the picture below shows half-precision didn't produce the artifact in the single-precision output (an extra front leg):
 
@@ -162,7 +164,7 @@ sudo docker run --rm --gpus all nvidia/cuda:11.2.1-base-ubuntu20.04 nvidia-smi
 3. Build the benchmark docker image
 
 ```
-docker build -t benchmark -f ./benchmarking/Dockerfile .   
+docker build -t benchmark -f ./benchmarking/Dockerfile .
 ```
 
 #### Running the benchmark
