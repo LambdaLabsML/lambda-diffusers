@@ -88,7 +88,7 @@ import torch
 from diffusers import StableDiffusionPipeline
 from torch import autocast
 
-pipe = StableDiffusionPipeline.from_pretrained("lambdalabs/sd-pokemon-diffusers", torch_dtype=torch.float16)  
+pipe = StableDiffusionPipeline.from_pretrained("lambdalabs/sd-pokemon-diffusers", torch_dtype=torch.float16)
 pipe = pipe.to("cuda")
 
 prompt = "Yoda"
@@ -113,29 +113,21 @@ for idx, im in enumerate(images):
 
 ## Benchmarking inference
 
-Detailed benchmark documentation can be found [here](./docs/benchmark.md).
-
-### Setup
-
-Before running the benchmark, make sure you have completed the repository [installation steps](#installation).
-
-You will then need to set the huggingface access token:
-1. Create a user account on HuggingFace and generate an access token.
-2. Set your huggingface access token as the `ACCESS_TOKEN` environment variable:
-```
-export ACCESS_TOKEN=<hf_...>
-```
+We have updated the original benchmark using xformers and a newer version of Diffusers, see the [new results here](./docs/benchmark-update.md) (original results can still be found [here](./docs/benchmark.md)).
 
 ### Usage
 
-Launch the benchmark script to append benchmark results to the existing [benchmark.csv](./benchmark.csv) results file:
-```
-python ./scripts/benchmark.py
+Ensure that [NVIDIA container toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) is installed on your system and then run the following:
+
+```bash
+git clone https://github.com/LambdaLabsML/lambda-diffusers.git
+cd lambda-diffusers/scripts
+make bench
 ```
 
 ### Results
 
-<img src="./docs/pictures/pretty_benchmark_sd_txt2img_latency.png" alt="Stable Diffusion Text2Image Latency (seconds)" width="850"/>
+![](./docs/pictures/sd_throughput.png)
 
 ## Links
 
