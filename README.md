@@ -138,6 +138,9 @@ Without [xformers](https://github.com/facebookresearch/xformers), raw data can b
 H100 MIG performance, raw data can be found [here](./benchmarks/benchmark_H100_MIG.csv).
 ![](./docs/pictures/sd_throughput_mig.png)
 
+Cost analysis
+![](./docs/pictures/cost_analysis.png)
+
 ## Links
 
 - [Captioned Pokémon dataset](https://huggingface.co/datasets/lambdalabs/pokemon-blip-captions)
