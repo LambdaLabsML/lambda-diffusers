@@ -16,7 +16,7 @@ Results will be written to `results.csv`, the benchmark will take different amou
 
 ## Results
 
-The current results for the benchmark are available in [`benchmark.csv`](../benchmark.csv). These results were run with Diffusers 0.11.0 and xformers using Ubuntu 20.04, Python 3.8, PyTorch 1.13, CUDA 11.8 ([NGC PyTorch container 22.11](https://docs.nvidia.com/deeplearning/frameworks/pytorch-release-notes/rel-22-11.html)).
+The current results for the benchmark are available in [`benchmark.csv`](../benchmarks/benchmark.csv). These results were run with Diffusers 0.11.0 and xformers using Ubuntu 20.04, Python 3.8, PyTorch 1.13, CUDA 11.8 ([NGC PyTorch container 22.11](https://docs.nvidia.com/deeplearning/frameworks/pytorch-release-notes/rel-22-11.html)).
 
 xformers provides a significant boost in performance and memory consumption allowing large batch sizes to maximise utilisation of GPUs. Our best performance comes using NVIDIA A100-SXM4-40GB on [Lambda GPU cloud](https://cloud.lambdalabs.com), at the maximum batch size tested (128) at half precision we observe a throughput of 1.85 images/second when using DDIM 30 steps for sampling.
 
