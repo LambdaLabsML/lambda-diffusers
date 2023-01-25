@@ -47,7 +47,22 @@ NVIDIA A100-PCIE-40GB,single,FALSE,FALSE,pytorch,64,-1,-1
 NVIDIA A100-PCIE-40GB,half,FALSE,FALSE,pytorch,64,-1,-1
 NVIDIA A100-PCIE-40GB,single,FALSE,FALSE,pytorch,128,-1,-1
 NVIDIA A100-PCIE-40GB,half,FALSE,FALSE,pytorch,128,-1,-1
-NVIDIA A100 80GB PCIe,single,FALSE,FALSE,pytorch,1,2.01,7.73
+NVIDIA A100 80GB PCIe,single,False,False,pytorch,1,2.05,7.76
+NVIDIA A100 80GB PCIe,half,False,False,pytorch,1,1.53,3.41
+NVIDIA A100 80GB PCIe,single,False,False,pytorch,2,3.09,9.04
+NVIDIA A100 80GB PCIe,half,False,False,pytorch,2,3.06,5.53
+NVIDIA A100 80GB PCIe,single,False,False,pytorch,4,6.34,18.04
+NVIDIA A100 80GB PCIe,half,False,False,pytorch,4,4.57,6.74
+NVIDIA A100 80GB PCIe,single,False,False,pytorch,8,11.16,23.85
+NVIDIA A100 80GB PCIe,half,False,False,pytorch,8,7.91,12.6
+NVIDIA A100 80GB PCIe,single,False,False,pytorch,16,22.59,42.63
+NVIDIA A100 80GB PCIe,half,False,False,pytorch,16,14.22,20.58
+NVIDIA A100 80GB PCIe,single,False,False,pytorch,32,44.02,79.6
+NVIDIA A100 80GB PCIe,half,False,False,pytorch,32,27.73,45.19
+NVIDIA A100 80GB PCIe,single,False,False,pytorch,64,-1.0,-1.0
+NVIDIA A100 80GB PCIe,half,False,False,pytorch,64,55.55,79.54
+NVIDIA A100 80GB PCIe,single,False,False,pytorch,128,-1.0,-1.0
+NVIDIA A100 80GB PCIe,half,False,False,pytorch,128,-1.0,-1.0
 NVIDIA RTX A6000,single,FALSE,FALSE,pytorch,1,4.15,6.76
 NVIDIA RTX A6000,half,FALSE,FALSE,pytorch,1,2.43,3.42
 NVIDIA RTX A6000,single,FALSE,FALSE,pytorch,2,6,11.1
